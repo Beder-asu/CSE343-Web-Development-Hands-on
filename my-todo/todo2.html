@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        input[type='text'] {
+            width: 300px;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type='radio'] {
+            margin: 10px 5px;
+        }
+
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        li span:first-child {
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+
+<body>
+    <input type='text' id='taskInput' placeholder='task name'>
+    <br>
+    <input type='radio' name='status' value='complete'> complete
+    <input type='radio' name='status' value='incomplete' checked> incomplete
+    <button onclick="addTask()"> Add task</button>
+
+    <h2>My Tasks</h2>
+    <button onclick='filterBy("complete")'> Completed Tasks</button>
+    <button onclick='filterBy("incomplete")'> inCompleted Tasks</button>
+    <button onclick='filterBy("All")'> All</button>
+
+    <ul id="taskList"></ul>
+</body>
+</body>
+<script>
+
+    let tasks = [];
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('taskInput').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                addTask();
+            }
+        });
+    });
+
+    function addTask() {
+        // Get task name and selected status
+        const taskName = document.getElementById('taskInput').value;
+        const statusElements = document.getElementsByName('status');
+        let status;
+
+        for (const el of statusElements) {
+            if (el.checked) {
+                status = el.value;
+                break;
+            }
+        }
+
+
+        if (!taskName) {
+            alert('Please enter a task name');
+            return;
+        }
+
+        const task = {
+            name: taskName,
+            status: status,
+            id: Date.now()
+        };
+
+
+        tasks.push(task);
+
+
+        renderTasks(tasks);
+
+
+        document.getElementById('taskInput').value = '';
+    }
+
+    function renderTasks(rendered_tasks) {
+        const taskList = document.getElementById('taskList');
+        taskList.innerHTML = '';
+
+        rendered_tasks.forEach(task => {
+            const li = document.createElement('li');
+            li.innerHTML = getTaskMarkup(task);
+            taskList.appendChild(li);
+        });
+    }
+
+    function getTaskMarkup(task) {
+
+        const statusDisplay = task.status;
+        return `
+                <div onclick='changeStat(${task.id})'>
+                    <span>${task.name} - ${statusDisplay}</span>
+                    <span>
+                        <button onclick="event.stopPropagation(); deleteTask(${task.id})">×</button>
+                    </span>
+                </div>
+            `;
+    }
+
+    function deleteTask(id) {
+        tasks = tasks.filter(task => task.id !== id);
+        renderTasks(tasks);
+    }
+
+    function changeStat(id) {
+        const task = tasks.find(task => id === task.id);
+        if (task) {
+            task.status = (task.status === 'complete') ? 'incomplete' : 'complete';
+            renderTasks(tasks);
+        }
+
+    }
+
+    function filterBy(filter) {
+        if (filter === "complete") {
+            c_tasks = tasks.filter(task => task.status === 'complete')
+            renderTasks(c_tasks)
+        } else if (filter === "incomplete") {
+            i_tasks = tasks.filter(task => task.status === 'incomplete')
+            renderTasks(i_tasks)
+        } else if (filter === "All") {
+            renderTasks(tasks)
+        }
+
+
+    }
+
+</script>
+
+</html>
